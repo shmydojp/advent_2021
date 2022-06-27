@@ -1,10 +1,11 @@
-#include <cstdio>
+\#include <cstdio>
 #include <cstdlib>
 #include <cmath>
 #include <cstring>
+#include <vector>
 
-#define BIN_SIZE 12
-#define BIT_MASK 0xFFF
+#define BIN_SIZE 5
+#define BIT_MASK 0x1F
 
 int* part_one(const char *filename){
   FILE *fp = std::fopen(filename, "r");
@@ -132,7 +133,40 @@ int* part_one(const char *filename){
 
 
 void part_two(const char* filename){
+  FILE *fp = std::fopen(filename, "r");
+
+  if(!fp){
+    std::perror("failed to open file");
+  }
+
+  std::vector<const char *> data;
+
+  char line[BIN_SIZE];
+  int i=0;
+  while(fgets(line, BIN_SIZE, fp)){
+    data.push_back(line);
+  }
+
+  char most[BIN_SIZE+1]{'\0'};
+  char less[BIN_SIZE+1]{'\0'};
   
+  for(int i = 0; i < BIN_SIZE; i++){
+    int count_0 = 0;
+    int count_1 = 0;
+    for(int j = 0; j < data.size(); j++){
+      if(data[j][i] == '0') count_0++;
+      else if(data[j][i] == '1') count_1++;
+    }
+
+    if(count_0 > count_1) most[i] = '0';
+    else most[i] = '1';
+
+    if(count_1 > count_0) less[i] = '1';
+    else less[i] = '0';    
+  }
+
+  printf("Most: %s\n", most);
+  printf("Less: %s\n", less);
 }
 
 int main(int argc, char **argv){
