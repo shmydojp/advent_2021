@@ -1,11 +1,12 @@
-\#include <cstdio>
+#include <cstdio>
 #include <cstdlib>
 #include <cmath>
 #include <cstring>
 #include <vector>
+#include <string>
 
-#define BIN_SIZE 5
-#define BIT_MASK 0x1F
+#define BIN_SIZE 12
+#define BIT_MASK 0xFFF
 
 int* part_one(const char *filename){
   FILE *fp = std::fopen(filename, "r");
@@ -139,30 +140,76 @@ void part_two(const char* filename){
     std::perror("failed to open file");
   }
 
-  std::vector<const char *> data;
+  std::vector<std::string> data;
 
-  char line[BIN_SIZE];
+  char line[BIN_SIZE+1];
+
   int i=0;
-  while(fgets(line, BIN_SIZE, fp)){
-    data.push_back(line);
+  while(fgets(line, BIN_SIZE + 1, fp)){
+    std::string temp = line;
+    if(temp == "\n") { continue; }
+    data.push_back(temp);
+    printf("data: %s\n", data[i++].data());
   }
-
+  
   char most[BIN_SIZE+1]{'\0'};
   char less[BIN_SIZE+1]{'\0'};
+
+  printf("Size of Most: %d\n", sizeof(most) / sizeof(char));
+  printf("Size of Less: %d\n", sizeof(less) / sizeof(char));
   
   for(int i = 0; i < BIN_SIZE; i++){
     int count_0 = 0;
     int count_1 = 0;
+    int countm_0 = 0;
+    int countm_1 = 0;
+    int countl_0 = 0;
+    int countl_1 = 0;
+    
     for(int j = 0; j < data.size(); j++){
-      if(data[j][i] == '0') count_0++;
-      else if(data[j][i] == '1') count_1++;
+
+      if(most[0] == '\0'){
+	if(data[j].data()[i] == '0') count_0++;
+	else if(data[j].data()[i] == '1') count_1++;
+      }
+      else{
+	std::string subby(data[j].substr(0,i));
+
+	if(subby == static_cast<std::string>(most)){
+	  if(data[j].data()[i] == '0') countm_0++;
+	  else if(data[j].data()[i] == '1') countm_1++;
+	}
+	else if(subby == static_cast<std::string>(less) ){
+	  //	  printf("less sub: %s\n", subby.data());
+	  if(data[j].data()[i] == '0') countl_0++;
+	  else if(data[j].data()[i] == '1') countl_1++;
+	}
+
+      }
+
     }
 
-    if(count_0 > count_1) most[i] = '0';
-    else most[i] = '1';
+    if(most[0] == '\0'){
+      if(count_0 > count_1){
+	most[i] = '0';
+	less[i] = '1';
+      }
+      else{
+	most[i] = '1';
+	less[i] = '0';
+      }
+    }else{
 
-    if(count_1 > count_0) less[i] = '1';
-    else less[i] = '0';    
+      if(countm_0 > countm_1) most[i] = '0';
+      else most[i] = '1';
+          
+      if((countl_0 <= countl_1 && (countl_0 != 0)) || countl_1 == 0)
+	less[i] = '0';
+      else less[i] = '1'; 
+
+      //      printf("Countl_0: %d, Countl_1: %d\n", countl_0, countl_1);
+    }
+    
   }
 
   printf("Most: %s\n", most);
