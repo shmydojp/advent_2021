@@ -1,4 +1,4 @@
-cc=g++
+cc=gcc
 CFLAGS=
 OUT=day_04
 DEBUG=-g
